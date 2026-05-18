@@ -1,0 +1,25 @@
+# Python
+venv/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+pip-log.txt
+pip-delete-this-directory.txt
+.toast
+.lucid
+.replit
+
+# Node
+node_modules/
+.next/
+out/
+build/
+dist/
+.DS_Store
+
+# Scanner Data (Keep actual JSON data tracked, but ignore temp or logs if any)
+*.log
