@@ -1484,7 +1484,7 @@
         "high": 57.59,
         "low": 55.12,
         "close": 57.15,
-        "volume": 9372649
+        "volume": 11447154
       }
     ],
     "entry_price": 57.05,
@@ -1493,7 +1493,7 @@
     "resistance_level": 57.05,
     "compression_ratio": 0.22,
     "prior_trend_pct": 12.25,
-    "volume_contraction_pct": 36.48
+    "volume_contraction_pct": 35.68
   },
   {
     "ticker": "BAS.DE",
@@ -2980,7 +2980,7 @@
         "high": 142.83,
         "low": 141.19,
         "close": 142.31,
-        "volume": 2111212
+        "volume": 2980205
       }
     ],
     "entry_price": 145.39,
@@ -2989,7 +2989,7 @@
     "resistance_level": 145.39,
     "compression_ratio": 0.32,
     "prior_trend_pct": 7.47,
-    "volume_contraction_pct": 17.57
+    "volume_contraction_pct": 15.98
   },
   {
     "ticker": "SAIA",
@@ -5968,7 +5968,7 @@
       },
       {
         "date": "2026-05-18",
-        "open": 131.52,
+        "open": 131.6,
         "high": 133.47,
         "low": 131.13,
         "close": 133.34,
