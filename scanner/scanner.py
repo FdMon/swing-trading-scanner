@@ -8,30 +8,21 @@ from indicators import calculate_indicators
 from patterns import check_ascending_triangle, check_volume_contraction
 from scoring import calculate_score
 
-def run_scanner():
-    print(f"Starting Scan: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    
-    # 1. Get Universe 
-    universe_dict = get_universe(include_sp500=True, include_ndx=True, include_dow=True, include_sp400=True, 
-                                 include_eurostoxx=True, include_dax=True, include_cac=True, 
-                                 include_ibex=True, include_ftse=True) 
-    tickers = list(universe_dict.keys())
-    print(f"Scanning {len(tickers)} tickers...")
-    
-    opportunities = []
-    
-    for i, ticker in enumerate(tickers):
-        print(f"[{i+1}/{len(tickers)}] Processing {ticker}...", end="\r")
-        
+import math
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
+def process_ticker(ticker, universe_dict):
+    """Processes a single stock symbol: downloads history, calculates indicators and checks criteria."""
+    try:
         # 2. Download Data
         df = download_data(ticker, period='1y', interval='1d')
         if df is None or len(df) < 200: # Need enough data for EMA200
-            continue
+            return None
             
-        # Limpieza: Eliminar filas con precios NaN que rompen el JSON
+        # Limpieza: Eliminar filas con precios NaN
         df = df.dropna(subset=['Open', 'High', 'Low', 'Close'])
         if len(df) < 90:
-            continue
+            return None
             
         # 3. Calculate Indicators
         df = calculate_indicators(df)
@@ -48,10 +39,8 @@ def run_scanner():
             if score_data['total_score'] >= 50:
                 latest = df.iloc[-1]
                 
-                # Validar que el precio actual sea un número (evita NaNs que rompen el JSON/Frontend)
-                import math
                 if math.isnan(latest['Close']):
-                    continue
+                    return None
                     
                 ema_alignment = bool(latest['Close'] > latest['EMA20'] > latest['EMA50'])
                 
@@ -91,7 +80,39 @@ def run_scanner():
                     "prior_trend_pct": pattern_data.get('prior_trend_pct'),
                     "volume_contraction_pct": pattern_data.get('volume_contraction_pct')
                 }
-                opportunities.append(opp)
+                return opp
+    except Exception as e:
+        # Silently fail for corrupted/problematic downloads during parallel execution
+        pass
+    return None
+
+def run_scanner():
+    print(f"Starting Scan: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    
+    # 1. Get Universe 
+    universe_dict = get_universe(include_sp500=True, include_ndx=True, include_dow=True, include_sp400=True, 
+                                 include_eurostoxx=True, include_dax=True, include_cac=True, 
+                                 include_ibex=True, include_ftse=True) 
+    tickers = list(universe_dict.keys())
+    
+    opportunities = []
+    max_workers = 16  # El "sweet spot" óptimo de hilos en paralelo
+    print(f"Scanning {len(tickers)} tickers in parallel using {max_workers} threads...")
+    
+    completed_count = 0
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        futures = {executor.submit(process_ticker, ticker, universe_dict): ticker for ticker in tickers}
+        
+        for future in as_completed(futures):
+            ticker = futures[future]
+            completed_count += 1
+            print(f"[{completed_count}/{len(tickers)}] Finished {ticker}...", end="\r")
+            try:
+                opp = future.result()
+                if opp is not None:
+                    opportunities.append(opp)
+            except Exception as e:
+                pass
     
     print("\nScan Complete!")
     print(f"Found {len(opportunities)} opportunities >= 50 score.")
