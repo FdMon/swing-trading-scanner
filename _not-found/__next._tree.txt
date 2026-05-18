@@ -1,2 +1,2 @@
-:HL["/_next/static/chunks/0o10dtv1fv7y1.css","style"]
-0:{"tree":{"name":"","param":null,"prefetchHints":16,"slots":{"children":{"name":"/_not-found","param":null,"prefetchHints":0,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":0,"slots":null}}}}},"staleTime":300,"buildId":"YjkRsj3eqYENXEI4d0fVS"}
+:HL["/swing-trading-scanner/_next/static/chunks/0o10dtv1fv7y1.css","style"]
+0:{"tree":{"name":"","param":null,"prefetchHints":16,"slots":{"children":{"name":"/_not-found","param":null,"prefetchHints":0,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":0,"slots":null}}}}},"staleTime":300,"buildId":"Teo-ioHbbJXrfd8ZfbmoD"}
