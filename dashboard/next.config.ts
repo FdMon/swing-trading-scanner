@@ -5,6 +5,7 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true,
   },
+  basePath: '/swing-trading-scanner',
 };
 
 export default nextConfig;
