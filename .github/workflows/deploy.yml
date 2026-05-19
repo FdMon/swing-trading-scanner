@@ -2,8 +2,8 @@ name: Deploy Scanner Dashboard
 
 on:
   schedule:
-    # Se ejecuta todos los días a las 20:15 UTC (22:15 en España peninsular)
-    - cron: '15 20 * * *'
+    # Se ejecuta todos los días a las 20:36 UTC (22:26 en España peninsular)
+    - cron: '26 20 * * *'
   workflow_dispatch: # Permite ejecutar el flujo manualmente desde la pestaña Actions en GitHub
 
 permissions:
