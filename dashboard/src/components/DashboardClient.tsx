@@ -342,52 +342,53 @@ export default function DashboardClient({ initialData }: { initialData: Opportun
 
   return (
     <div className="space-y-6">
-      {/* Tab Switcher */}
-      <div className="flex space-x-1 bg-slate-900/50 p-1 rounded-xl border border-slate-800 w-fit">
-        <button
-          onClick={() => setActiveTab('all')}
-          className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-            activeTab === 'all' 
-            ? "bg-slate-800 text-emerald-400 shadow-sm" 
-            : "text-slate-400 hover:text-slate-200"
-          }`}
-        >
-          <TrendingUp size={16} className="mr-2" />
-          All Opportunities
-          <span className="ml-2 bg-slate-950 px-1.5 py-0.5 rounded text-[10px] text-slate-500">
-            {initialData.length}
-          </span>
-        </button>
-        <button
-          onClick={() => setActiveTab('favorites')}
-          className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-            activeTab === 'favorites' 
-            ? "bg-slate-800 text-rose-400 shadow-sm" 
-            : "text-slate-400 hover:text-slate-200"
-          }`}
-        >
-          <Heart size={16} className={`mr-2 ${activeTab === 'favorites' ? 'fill-rose-400' : ''}`} />
-          My Watchlist
-          <span className="ml-2 bg-slate-950 px-1.5 py-0.5 rounded text-[10px] text-slate-500">
-            {favorites.length}
-          </span>
-        </button>
-      </div>
+      {/* Tab Switcher + Settings */}
+      <div className="flex items-center justify-between">
+        <div className="flex space-x-1 bg-slate-900/50 p-1 rounded-xl border border-slate-800 w-fit">
+          <button
+            onClick={() => setActiveTab('all')}
+            className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+              activeTab === 'all' 
+              ? "bg-slate-800 text-emerald-400 shadow-sm" 
+              : "text-slate-400 hover:text-slate-200"
+            }`}
+          >
+            <TrendingUp size={16} className="mr-2" />
+            All Opportunities
+            <span className="ml-2 bg-slate-950 px-1.5 py-0.5 rounded text-[10px] text-slate-500">
+              {initialData.length}
+            </span>
+          </button>
+          <button
+            onClick={() => setActiveTab('favorites')}
+            className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+              activeTab === 'favorites' 
+              ? "bg-slate-800 text-rose-400 shadow-sm" 
+              : "text-slate-400 hover:text-slate-200"
+            }`}
+          >
+            <Heart size={16} className={`mr-2 ${activeTab === 'favorites' ? 'fill-rose-400' : ''}`} />
+            My Watchlist
+            <span className="ml-2 bg-slate-950 px-1.5 py-0.5 rounded text-[10px] text-slate-500">
+              {favorites.length}
+            </span>
+          </button>
+        </div>
 
-      <div className="flex items-center space-x-2">
-        {isSyncing && (
-          <span className="text-xs text-slate-400 animate-pulse flex items-center">
-            <Activity size={12} className="mr-1" /> Sincronizando...
-          </span>
-        )}
-        <button
-          onClick={() => setShowSettings(!showSettings)}
-          className="text-slate-500 hover:text-slate-300 p-2 rounded-lg hover:bg-slate-800 transition-colors"
-          title="Cloud Sync Settings"
-        >
-          <Settings size={18} />
-        </button>
-      </div>
+        <div className="flex items-center space-x-2">
+          {isSyncing && (
+            <span className="text-xs text-slate-400 animate-pulse flex items-center">
+              <Activity size={12} className="mr-1" /> Sincronizando...
+            </span>
+          )}
+          <button
+            onClick={() => setShowSettings(!showSettings)}
+            className="text-slate-500 hover:text-slate-300 p-2 rounded-lg hover:bg-slate-800 transition-colors"
+            title="Cloud Sync Settings"
+          >
+            <Settings size={18} />
+          </button>
+        </div>
       </div>
 
       {showSettings && (
