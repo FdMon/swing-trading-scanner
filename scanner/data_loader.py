@@ -222,31 +222,132 @@ def get_universe(include_sp500: bool = True, include_ndx: bool = True, include_d
     
     return universe
 
-def download_data(ticker: str, period: str = '1y', interval: str = '1d') -> Optional[pd.DataFrame]:
+import os
+import math
+from datetime import datetime, timedelta
+
+def update_historical_data(tickers: List[str], data_dir: str = 'data'):
     """
-    Downloads historical data for a given ticker.
+    Downloads historical data using batch processing and Parquet cache.
+    On Sundays, ignores cache and forces a full 1y download for dividends/splits.
     """
-    try:
-        df = yf.download(ticker, period=period, interval=interval, progress=False)
-        if df.empty:
-            return None
-        
-        # Flatten MultiIndex columns if present (yfinance sometimes does this)
-        if isinstance(df.columns, pd.MultiIndex):
-            df.columns = df.columns.get_level_values(0)
+    parquet_path = os.path.join(data_dir, 'history.parquet')
+    os.makedirs(data_dir, exist_ok=True)
+    
+    today = datetime.now()
+    is_sunday = today.weekday() == 6
+    
+    df_cached = None
+    if not is_sunday and os.path.exists(parquet_path):
+        try:
+            df_cached = pd.read_parquet(parquet_path)
+            print(f"Loaded {len(df_cached)} rows from Parquet cache.")
+        except Exception as e:
+            print(f"Error loading Parquet: {e}")
+            df_cached = None
+
+    start_date = None
+    period = '1y'
+    
+    if df_cached is not None and not df_cached.empty and 'Date' in df_cached.columns:
+        last_date = df_cached['Date'].max()
+        if hasattr(last_date, 'tzinfo') and last_date.tzinfo is not None:
+            last_date = last_date.tz_localize(None)
             
-        return df
-    except Exception as e:
-        print(f"Error downloading data for {ticker}: {e}")
+        start_date = (last_date + timedelta(days=1)).strftime('%Y-%m-%d')
+        period = None
+        print(f"Incremental update. Fetching from {start_date} for {len(tickers)} tickers.")
+    else:
+        print(f"Full refresh. Fetching 1y data for {len(tickers)} tickers.")
+        df_cached = pd.DataFrame()
+
+    chunk_size = 250
+    all_new_data = []
+    
+    for i in range(0, len(tickers), chunk_size):
+        chunk = tickers[i:i+chunk_size]
+        print(f"Fetching chunk {i//chunk_size + 1}/{math.ceil(len(tickers)/chunk_size)}...")
+        try:
+            kwargs = {'progress': False, 'group_by': 'ticker'}
+            if start_date:
+                kwargs['start'] = start_date
+            else:
+                kwargs['period'] = period
+                
+            data = yf.download(chunk, **kwargs)
+            if data.empty:
+                continue
+                
+            if len(chunk) == 1:
+                df = data.copy()
+                df['Ticker'] = chunk[0]
+                all_new_data.append(df.reset_index())
+            else:
+                for ticker in chunk:
+                    if ticker in data.columns.get_level_values(0):
+                        df = data[ticker].dropna(how='all').copy()
+                        if not df.empty:
+                            df['Ticker'] = ticker
+                            all_new_data.append(df.reset_index())
+        except Exception as e:
+            print(f"Error fetching chunk: {e}")
+            
+    if all_new_data:
+        new_df = pd.concat(all_new_data, ignore_index=True)
+        # Format columns: Date, Open, High, Low, Close, Volume, Ticker
+        # Sometimes yf returns 'Price' as level 1, dropping multiindex if flat
+        if isinstance(new_df.columns, pd.MultiIndex):
+            new_df.columns = [c[0] for c in new_df.columns]
+            
+        cols_map = {c: c.capitalize() for c in new_df.columns if isinstance(c, str)}
+        new_df.rename(columns=cols_map, inplace=True)
+        
+        if 'Date' in new_df.columns and hasattr(new_df['Date'].dtype, 'tz') and new_df['Date'].dtype.tz is not None:
+            new_df['Date'] = new_df['Date'].dt.tz_localize(None)
+            
+        if not df_cached.empty:
+            final_df = pd.concat([df_cached, new_df], ignore_index=True)
+            final_df.drop_duplicates(subset=['Date', 'Ticker'], keep='last', inplace=True)
+        else:
+            final_df = new_df
+            
+        try:
+            final_df.to_parquet(parquet_path, engine='fastparquet')
+            print(f"Saved {len(final_df)} rows to {parquet_path}")
+        except Exception as e:
+            print(f"Failed to save Parquet: {e}")
+            # Try falling back to pyarrow
+            try:
+                final_df.to_parquet(parquet_path, engine='pyarrow')
+                print(f"Saved {len(final_df)} rows to {parquet_path} (via pyarrow)")
+            except Exception as e2:
+                print(f"Failed to save Parquet via pyarrow: {e2}")
+    else:
+        print("No new data fetched.")
+
+def get_cached_ticker_data(ticker: str, df_cached: pd.DataFrame) -> Optional[pd.DataFrame]:
+    if df_cached is None or df_cached.empty:
         return None
+    ticker_df = df_cached[df_cached['Ticker'] == ticker].copy()
+    if ticker_df.empty:
+        return None
+    
+    if 'Date' in ticker_df.columns:
+        ticker_df.set_index('Date', inplace=True)
+    ticker_df.sort_index(inplace=True)
+    
+    # Ensure standard columns are present
+    for col in ['Open', 'High', 'Low', 'Close']:
+        if col not in ticker_df.columns:
+            return None
+            
+    return ticker_df
 
 if __name__ == "__main__":
-    # Test
-    universe = get_universe()
-    print(f"Universe size: {len(universe)} tickers")
-    if universe:
-        test_ticker = universe[0]
-        print(f"Testing download for {test_ticker}")
-        df = download_data(test_ticker)
-        if df is not None:
-            print(df.tail())
+    universe = get_universe(include_sp500=True, include_ndx=False, include_dow=False, include_sp400=False, include_eurostoxx=False, include_dax=False, include_cac=False, include_ibex=False, include_ftse=False)
+    tickers = list(universe.keys())[:10] # test small subset
+    update_historical_data(tickers)
+    
+    df = pd.read_parquet('data/history.parquet')
+    test_df = get_cached_ticker_data(tickers[0], df)
+    print(test_df.tail() if test_df is not None else "No data")

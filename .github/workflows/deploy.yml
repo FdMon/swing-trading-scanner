@@ -30,12 +30,30 @@ jobs:
           python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
+      - name: Restore Parquet cache
+        id: cache-parquet
+        uses: actions/cache@v4
+        with:
+          path: data/history.parquet
+          # Cache is invalidated every Sunday (week-of-year changes) to force full refresh
+          # On weekdays, same key = cache hit = incremental update only
+          key: parquet-history-${{ github.run_id }}-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            parquet-history-
+
       - name: Run Market Scanner
         env:
           JSONBIN_BIN_ID: "6a10dc0c6610dd3ae88d7b1d"
           JSONBIN_API_KEY: ${{ secrets.JSONBIN_API_KEY }}
         run: |
           python scanner/scanner.py
+
+      - name: Save Parquet cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: data/history.parquet
+          key: parquet-history-${{ github.run_id }}-${{ hashFiles('requirements.txt') }}
 
       - name: Commit updated opportunities.json
         run: |
