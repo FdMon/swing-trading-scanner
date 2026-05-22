@@ -28,6 +28,9 @@ jobs:
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
       - name: Run Market Scanner
+        env:
+          JSONBIN_BIN_ID: "6a10dc0c6610dd3ae88d7b1d"
+          JSONBIN_API_KEY: ${{ secrets.JSONBIN_API_KEY }}
         run: |
           python scanner/scanner.py
 

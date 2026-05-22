@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { ShieldCheck, TrendingUp, Activity, BarChart2, Heart, Star, Sparkles, Info, Bell, Lock } from 'lucide-react';
+import { ShieldCheck, TrendingUp, Activity, BarChart2, Heart, Star, Sparkles, Info, Bell, Lock, Settings } from 'lucide-react';
 import StockChart from './StockChart';
 
 interface Opportunity {
@@ -39,6 +39,11 @@ export default function DashboardClient({ initialData }: { initialData: Opportun
   const [loginError, setLoginError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeTab, setActiveTab] = useState<'all' | 'favorites'>('all');
+  const [jsonBinKey, setJsonBinKey] = useState('');
+  const [showSettings, setShowSettings] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
+
+  const JSONBIN_BIN_ID = "6a10dc0c6610dd3ae88d7b1d";
 
   useEffect(() => {
     setMounted(true);
@@ -49,28 +54,52 @@ export default function DashboardClient({ initialData }: { initialData: Opportun
       setIsAuthenticated(true);
     }
 
-    const saved = localStorage.getItem('swing-scanner-favorites-v2');
-    if (saved) {
-      const storedFavs: Opportunity[] = JSON.parse(saved);
-      
-      // Sincronizar favoritos guardados con datos frescos si existen en initialData
-      const syncedFavs = storedFavs.map(fav => {
-        const freshData = initialData.find(d => d.ticker === fav.ticker);
-        if (freshData) {
-          return {
-            ...fav,
-            price: freshData.price,
-            history: freshData.history,
-            score: freshData.score // Actualizar puntuación pero mantener niveles originales
-          };
-        }
-        return fav;
-      });
-      setFavorites(syncedFavs);
+    const storedKey = localStorage.getItem('swing-scanner-jsonbin-key');
+    if (storedKey) {
+      setJsonBinKey(storedKey);
     }
+
+    const fetchFavorites = async () => {
+      try {
+        const headers: HeadersInit = {};
+        if (storedKey) {
+          headers['X-Access-Key'] = storedKey;
+        }
+        
+        const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, { headers });
+        if (res.ok) {
+          const data = await res.json();
+          const storedFavs: Opportunity[] = data.record?.favorites || [];
+          
+          const syncedFavs = storedFavs.map(fav => {
+            const freshData = initialData.find(d => d.ticker === fav.ticker);
+            if (freshData) {
+              return {
+                ...fav,
+                price: freshData.price,
+                history: freshData.history,
+                score: freshData.score
+              };
+            }
+            return fav;
+          });
+          setFavorites(syncedFavs);
+        }
+      } catch (err) {
+        console.error("Error fetching favorites from JSONBin", err);
+      }
+    };
+
+    fetchFavorites();
   }, [initialData]);
 
-  const toggleFavorite = (opp: Opportunity) => {
+  const toggleFavorite = async (opp: Opportunity) => {
+    if (!jsonBinKey) {
+      alert("Por favor, configura tu API Key de JSONBin en la sección de Ajustes para guardar favoritos.");
+      setShowSettings(true);
+      return;
+    }
+
     const isAlreadyFav = favorites.some(f => f.ticker === opp.ticker);
     let newFavorites: Opportunity[];
 
@@ -81,7 +110,22 @@ export default function DashboardClient({ initialData }: { initialData: Opportun
     }
     
     setFavorites(newFavorites);
-    localStorage.setItem('swing-scanner-favorites-v2', JSON.stringify(newFavorites));
+    setIsSyncing(true);
+
+    try {
+      await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Access-Key': jsonBinKey
+        },
+        body: JSON.stringify({ favorites: newFavorites })
+      });
+    } catch (err) {
+      console.error("Error saving favorites to JSONBin", err);
+    } finally {
+      setIsSyncing(false);
+    }
   };
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -329,6 +373,53 @@ export default function DashboardClient({ initialData }: { initialData: Opportun
           </span>
         </button>
       </div>
+
+      <div className="flex items-center space-x-2">
+        {isSyncing && (
+          <span className="text-xs text-slate-400 animate-pulse flex items-center">
+            <Activity size={12} className="mr-1" /> Sincronizando...
+          </span>
+        )}
+        <button
+          onClick={() => setShowSettings(!showSettings)}
+          className="text-slate-500 hover:text-slate-300 p-2 rounded-lg hover:bg-slate-800 transition-colors"
+          title="Cloud Sync Settings"
+        >
+          <Settings size={18} />
+        </button>
+      </div>
+      </div>
+
+      {showSettings && (
+        <div className="bg-slate-900/80 backdrop-blur border border-slate-800 p-6 rounded-xl shadow-lg mb-6 animate-in fade-in slide-in-from-top-2">
+          <h3 className="text-sm font-bold text-slate-200 mb-2 flex items-center">
+            <Lock size={14} className="mr-2 text-emerald-400" />
+            Configuración de Sincronización en la Nube
+          </h3>
+          <p className="text-xs text-slate-400 mb-4 max-w-2xl">
+            Para que tus favoritos se guarden en la nube y se sincronicen en todos tus dispositivos, pega aquí tu API Key de JSONBin. Solo tendrás que hacerlo una vez por dispositivo.
+          </p>
+          <div className="flex space-x-3">
+            <input
+              type="password"
+              value={jsonBinKey}
+              onChange={(e) => setJsonBinKey(e.target.value)}
+              placeholder="Ej: $2a$10$v/m4qo..."
+              className="flex-1 bg-slate-950 border border-slate-800 rounded-lg px-4 py-2 text-sm text-slate-100 focus:border-emerald-500/50 outline-none font-mono"
+            />
+            <button
+              onClick={() => {
+                localStorage.setItem('swing-scanner-jsonbin-key', jsonBinKey);
+                alert("Clave guardada en este dispositivo.");
+                setShowSettings(false);
+              }}
+              className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-4 py-2 rounded-lg text-sm font-bold hover:bg-emerald-500/20 transition-colors"
+            >
+              Guardar Clave
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Grid Content */}
       <section className="pt-2">

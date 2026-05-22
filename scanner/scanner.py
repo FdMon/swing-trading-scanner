@@ -9,9 +9,27 @@ from patterns import check_ascending_triangle, check_volume_contraction
 from scoring import calculate_score
 
 import math
+import requests
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-def process_ticker(ticker, universe_dict):
+def get_jsonbin_favorites(bin_id, api_key):
+    if not bin_id:
+        return []
+    url = f"https://api.jsonbin.io/v3/b/{bin_id}"
+    headers = {}
+    if api_key:
+        headers["X-Access-Key"] = api_key
+    try:
+        response = requests.get(url, headers=headers)
+        if response.status_code == 200:
+            data = response.json()
+            record = data.get("record", {})
+            return record.get("favorites", [])
+    except Exception as e:
+        print(f"Error fetching favorites from JSONBin: {e}")
+    return []
+
+def process_ticker(ticker, universe_dict, force_include=False):
     """Processes a single stock symbol: downloads history, calculates indicators and checks criteria."""
     try:
         # 2. Download Data
@@ -31,12 +49,12 @@ def process_ticker(ticker, universe_dict):
         is_triangle, pattern_data = check_ascending_triangle(df, window=90)
         has_vol_contraction = check_volume_contraction(df, window=10)
         
-        if is_triangle:
+        if is_triangle or force_include:
             # 5. Calculate Score
             score_data = calculate_score(df, pattern_data, has_vol_contraction)
             
             # 6. Filter by Score Rule (>= 50 temporal para MVP test)
-            if score_data['total_score'] >= 50:
+            if score_data['total_score'] >= 50 or force_include:
                 latest = df.iloc[-1]
                 
                 if math.isnan(latest['Close']):
@@ -89,6 +107,16 @@ def process_ticker(ticker, universe_dict):
 def run_scanner():
     print(f"Starting Scan: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     
+    bin_id = os.environ.get("JSONBIN_BIN_ID")
+    api_key = os.environ.get("JSONBIN_API_KEY")
+    favorites_list = []
+    if bin_id:
+        print("Fetching favorites from JSONBin...")
+        favorites_list = get_jsonbin_favorites(bin_id, api_key)
+        
+    favorite_tickers = [f["ticker"] for f in favorites_list if "ticker" in f]
+    print(f"Loaded {len(favorite_tickers)} favorites.")
+
     # 1. Get Universe 
     universe_dict = get_universe(include_sp500=True, include_ndx=True, include_dow=True, include_sp400=True, 
                                  include_eurostoxx=True, include_dax=True, include_cac=True, 
@@ -116,6 +144,22 @@ def run_scanner():
     
     print("\nScan Complete!")
     print(f"Found {len(opportunities)} opportunities >= 50 score.")
+    
+    # Ensure all favorites are included with fresh data
+    scanned_tickers = {opp["ticker"] for opp in opportunities}
+    missing_favorites = [t for t in favorite_tickers if t not in scanned_tickers and t in universe_dict]
+    
+    if missing_favorites:
+        print(f"Fetching fresh data for {len(missing_favorites)} missing favorites...")
+        with ThreadPoolExecutor(max_workers=min(max_workers, len(missing_favorites))) as executor:
+            futures = {executor.submit(process_ticker, ticker, universe_dict, True): ticker for ticker in missing_favorites}
+            for future in as_completed(futures):
+                try:
+                    opp = future.result()
+                    if opp is not None:
+                        opportunities.append(opp)
+                except Exception as e:
+                    pass
     
     # 7. Save JSON
     base_dir = os.path.dirname(os.path.dirname(__file__))
