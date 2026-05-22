@@ -248,18 +248,30 @@ def update_historical_data(tickers: List[str], data_dir: str = 'data'):
 
     start_date = None
     period = '1y'
+    already_up_to_date = False
     
     if df_cached is not None and not df_cached.empty and 'Date' in df_cached.columns:
         last_date = df_cached['Date'].max()
         if hasattr(last_date, 'tzinfo') and last_date.tzinfo is not None:
             last_date = last_date.tz_localize(None)
-            
-        start_date = (last_date + timedelta(days=1)).strftime('%Y-%m-%d')
-        period = None
-        print(f"Incremental update. Fetching from {start_date} for {len(tickers)} tickers.")
+
+        next_date = last_date + timedelta(days=1)
+        
+        # If the next date to fetch is today or in the future, the cache is already up to date
+        if next_date.date() >= today.date():
+            print(f"Cache is already up to date (last date: {last_date.date()}). Skipping download.")
+            already_up_to_date = True
+        else:
+            start_date = next_date.strftime('%Y-%m-%d')
+            period = None
+            print(f"Incremental update. Fetching from {start_date} for {len(tickers)} tickers.")
     else:
         print(f"Full refresh. Fetching 1y data for {len(tickers)} tickers.")
         df_cached = pd.DataFrame()
+
+    if already_up_to_date:
+        return  # Nothing to download, cache is fresh
+
 
     chunk_size = 250
     all_new_data = []
