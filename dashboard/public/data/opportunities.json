@@ -2,30 +2,22 @@
   {
     "ticker": "SPX.L",
     "index": "FTSE 100",
-    "score": 95,
+    "score": 75,
     "pattern": "ascending_triangle",
-    "price": 7475.0,
+    "price": 7470.0,
     "ema_alignment": true,
-    "volume_score": 20,
-    "atr_compression": 6.48,
+    "volume_score": 0,
+    "atr_compression": 6.69,
     "breakdown": {
       "trend_score": 25,
       "pattern_score": 25,
-      "volume_score": 20,
+      "volume_score": 0,
       "volatility_score": 10,
       "rs_score": 15,
-      "total_score": 95
+      "total_score": 75
     },
-    "date": "2026-10-30",
+    "date": "2026-11-03",
     "history": [
-      {
-        "date": "2026-06-26",
-        "open": 6939.52,
-        "high": 6949.52,
-        "low": 6819.53,
-        "close": 6869.53,
-        "volume": 154368
-      },
       {
         "date": "2026-06-29",
         "open": 6864.53,
@@ -737,43 +729,43 @@
         "low": 7475.0,
         "close": 7475.0,
         "volume": 205766
+      },
+      {
+        "date": "2026-11-03",
+        "open": 7510.0,
+        "high": 7656.5,
+        "low": 7450.0,
+        "close": 7470.0,
+        "volume": 213429
       }
     ],
-    "entry_price": 7469.84,
+    "entry_price": 7469.95,
     "stop_loss": 7135.54,
     "take_profit": 8264.94,
     "resistance_level": 7469.74,
-    "compression_ratio": 0.47,
-    "prior_trend_pct": 5.36,
-    "volume_contraction_pct": 35.68
+    "compression_ratio": 0.46,
+    "prior_trend_pct": 6.91,
+    "volume_contraction_pct": 30.01
   },
   {
     "ticker": "ALL",
     "index": "S&P 500",
-    "score": 85,
+    "score": 65,
     "pattern": "ascending_triangle",
-    "price": 259.87,
+    "price": 261.5,
     "ema_alignment": true,
-    "volume_score": 20,
-    "atr_compression": 20.19,
+    "volume_score": 0,
+    "atr_compression": 19.83,
     "breakdown": {
       "trend_score": 25,
       "pattern_score": 25,
-      "volume_score": 20,
+      "volume_score": 0,
       "volatility_score": 0,
       "rs_score": 15,
-      "total_score": 85
+      "total_score": 65
     },
-    "date": "2026-10-30",
+    "date": "2026-11-03",
     "history": [
-      {
-        "date": "2026-06-25",
-        "open": 233.89,
-        "high": 236.12,
-        "low": 230.02,
-        "close": 230.64,
-        "volume": 1576900
-      },
       {
         "date": "2026-06-26",
         "open": 233.49,
@@ -1485,25 +1477,33 @@
         "low": 259.34,
         "close": 259.87,
         "volume": 1515100
+      },
+      {
+        "date": "2026-11-03",
+        "open": 261.05,
+        "high": 263.0,
+        "low": 260.01,
+        "close": 261.5,
+        "volume": 1766533
       }
     ],
     "entry_price": 265.96,
-    "stop_loss": 228.15,
+    "stop_loss": 249.21,
     "take_profit": 312.41,
     "resistance_level": 265.96,
-    "compression_ratio": 0.5,
-    "prior_trend_pct": 11.31,
-    "volume_contraction_pct": 5.32
+    "compression_ratio": 0.25,
+    "prior_trend_pct": 9.7,
+    "volume_contraction_pct": -3.05
   },
   {
     "ticker": "EL",
     "index": "S&P 500",
     "score": 65,
     "pattern": "ascending_triangle",
-    "price": 109.23,
+    "price": 105.39,
     "ema_alignment": true,
     "volume_score": 0,
-    "atr_compression": 22.65,
+    "atr_compression": 20.72,
     "breakdown": {
       "trend_score": 25,
       "pattern_score": 25,
@@ -1512,16 +1512,8 @@
       "rs_score": 15,
       "total_score": 65
     },
-    "date": "2026-10-30",
+    "date": "2026-11-03",
     "history": [
-      {
-        "date": "2026-06-25",
-        "open": 83.14,
-        "high": 83.73,
-        "low": 80.91,
-        "close": 81.22,
-        "volume": 2150300
-      },
       {
         "date": "2026-06-26",
         "open": 80.23,
@@ -2233,25 +2225,33 @@
         "low": 105.44,
         "close": 109.23,
         "volume": 8862200
+      },
+      {
+        "date": "2026-11-03",
+        "open": 105.58,
+        "high": 107.1,
+        "low": 104.34,
+        "close": 105.39,
+        "volume": 4349908
       }
     ],
     "entry_price": 108.37,
     "stop_loss": 102.38,
     "take_profit": 133.17,
     "resistance_level": 108.37,
-    "compression_ratio": 0.14,
-    "prior_trend_pct": 6.1,
-    "volume_contraction_pct": 18.13
+    "compression_ratio": 0.13,
+    "prior_trend_pct": 6.23,
+    "volume_contraction_pct": 17.87
   },
   {
     "ticker": "LYB",
     "index": "S&P 500",
     "score": 65,
     "pattern": "ascending_triangle",
-    "price": 68.64,
+    "price": 66.09,
     "ema_alignment": true,
     "volume_score": 0,
-    "atr_compression": 20.81,
+    "atr_compression": 20.23,
     "breakdown": {
       "trend_score": 25,
       "pattern_score": 25,
@@ -2260,16 +2260,8 @@
       "rs_score": 15,
       "total_score": 65
     },
-    "date": "2026-10-30",
+    "date": "2026-11-03",
     "history": [
-      {
-        "date": "2026-06-25",
-        "open": 54.49,
-        "high": 55.61,
-        "low": 53.76,
-        "close": 55.27,
-        "volume": 5991200
-      },
       {
         "date": "2026-06-26",
         "open": 54.73,
@@ -2981,14 +2973,22 @@
         "low": 64.67,
         "close": 68.64,
         "volume": 4652800
+      },
+      {
+        "date": "2026-11-03",
+        "open": 66.36,
+        "high": 67.19,
+        "low": 64.75,
+        "close": 66.09,
+        "volume": 3766659
       }
     ],
     "entry_price": 68.61,
     "stop_loss": 62.3,
     "take_profit": 81.33,
     "resistance_level": 68.61,
-    "compression_ratio": 0.24,
-    "prior_trend_pct": 12.39,
-    "volume_contraction_pct": 13.26
+    "compression_ratio": 0.21,
+    "prior_trend_pct": 13.17,
+    "volume_contraction_pct": 7.52
   }
 ]
