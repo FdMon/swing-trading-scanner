@@ -4,10 +4,10 @@
     "index": "S&P MidCap 400",
     "score": 80,
     "pattern": "ascending_triangle",
-    "price": 97.32,
+    "price": 94.38,
     "ema_alignment": true,
     "volume_score": 20,
-    "atr_compression": 16.3,
+    "atr_compression": 16.49,
     "breakdown": {
       "trend_score": 20,
       "pattern_score": 25,
@@ -16,16 +16,8 @@
       "rs_score": 15,
       "total_score": 80
     },
-    "date": "2026-11-16",
+    "date": "2026-11-17",
     "history": [
-      {
-        "date": "2026-07-13",
-        "open": 65.07,
-        "high": 65.97,
-        "low": 64.25,
-        "close": 65.33,
-        "volume": 2127300
-      },
       {
         "date": "2026-07-14",
         "open": 65.62,
@@ -737,14 +729,22 @@
         "low": 94.5,
         "close": 97.32,
         "volume": 1672800
+      },
+      {
+        "date": "2026-11-17",
+        "open": 96.41,
+        "high": 97.7,
+        "low": 93.2,
+        "close": 94.38,
+        "volume": 1448413
       }
     ],
     "entry_price": 95.94,
     "stop_loss": 83.51,
     "take_profit": 121.86,
     "resistance_level": 95.94,
-    "compression_ratio": 0.32,
-    "prior_trend_pct": 15.55,
-    "volume_contraction_pct": 31.82
+    "compression_ratio": 0.31,
+    "prior_trend_pct": 14.78,
+    "volume_contraction_pct": 33.25
   }
 ]
