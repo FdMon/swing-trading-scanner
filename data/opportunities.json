@@ -736,7 +736,7 @@
         "high": 179.06,
         "low": 176.03,
         "close": 176.74,
-        "volume": 6200700
+        "volume": 5891500
       }
     ],
     "entry_price": 176.12,
@@ -745,7 +745,7 @@
     "resistance_level": 176.11,
     "compression_ratio": 0.28,
     "prior_trend_pct": 12.87,
-    "volume_contraction_pct": 2.52
+    "volume_contraction_pct": 2.85
   },
   {
     "ticker": "SAIC",
@@ -1480,11 +1480,11 @@
       },
       {
         "date": "2026-11-25",
-        "open": 146.31,
+        "open": 145.08,
         "high": 149.29,
         "low": 144.53,
         "close": 148.4,
-        "volume": 367700
+        "volume": 367469
       }
     ],
     "entry_price": 154.86,
@@ -2232,7 +2232,7 @@
         "high": 1083.68,
         "low": 1073.87,
         "close": 1077.32,
-        "volume": 557100
+        "volume": 537236
       }
     ],
     "entry_price": 1119.76,
@@ -2241,7 +2241,7 @@
     "resistance_level": 1119.76,
     "compression_ratio": 0.26,
     "prior_trend_pct": 6.24,
-    "volume_contraction_pct": 26.7
+    "volume_contraction_pct": 26.83
   },
   {
     "ticker": "CPRT",
@@ -2976,11 +2976,11 @@
       },
       {
         "date": "2026-11-25",
-        "open": 32.48,
-        "high": 33.32,
-        "low": 31.68,
+        "open": 32.54,
+        "high": 33.31,
+        "low": 31.67,
         "close": 33.17,
-        "volume": 10921600
+        "volume": 10895587
       }
     ],
     "entry_price": 32.89,
@@ -2989,7 +2989,7 @@
     "resistance_level": 32.89,
     "compression_ratio": 0.46,
     "prior_trend_pct": 15.09,
-    "volume_contraction_pct": 7.82
+    "volume_contraction_pct": 7.83
   },
   {
     "ticker": "DHR",
@@ -3726,9 +3726,9 @@
         "date": "2026-11-25",
         "open": 225.16,
         "high": 230.36,
-        "low": 223.25,
+        "low": 223.24,
         "close": 227.35,
-        "volume": 2503400
+        "volume": 2503340
       }
     ],
     "entry_price": 238.46,
